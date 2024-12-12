@@ -61,15 +61,16 @@ public class DuplicateFileFinderInvokeService : IPowerShellInvokeService, IDispo
             }
 
             var result =
-                ps.Invoke(input: null, settings: psInvocationSettings).FirstOrDefault()?.BaseObject;
+                ps.Invoke(input: null, settings: psInvocationSettings).FirstOrDefault()?.BaseObject as object[];
 
             if (result == null)
             {
                 return new List<DuplicateFileResult>();
             }
 
-            var duplicateFileResults = new List<DuplicateFileResult>(((object[])result).Length);
-            foreach (dynamic duplicateFileInfo in (object[])result)
+            var duplicateFileResults = new List<DuplicateFileResult>(result.Length);
+            // use dynamic to make simpler coding style to avoid reflection
+            foreach (dynamic duplicateFileInfo in result)
             {
                 var duplicateFileResult = new DuplicateFileResult
                 {

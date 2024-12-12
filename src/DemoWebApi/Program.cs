@@ -9,10 +9,10 @@ var app = builder.Build();
 
 app.MapGet("/", () => "Web API call PowerShell script demo, use POST /api/find_duplicate to find duplicate files");
 
-app.MapPost("/api/find_duplicate", async (IPowerShellInvokeService powerShellInvokeService, ApiInputDto input) =>
-{
-    var cts = new CancellationTokenSource();
-    var result = await powerShellInvokeService.RunScriptAsync(input, cts.Token);
-    return result;
-});
+app.MapPost("/api/find_duplicate",
+    async (HttpContext httpContext, IPowerShellInvokeService powerShellInvokeService, ApiInputDto input) =>
+    {
+        var result = await powerShellInvokeService.RunScriptAsync(input, httpContext.RequestAborted);
+        return result;
+    });
 app.Run();
