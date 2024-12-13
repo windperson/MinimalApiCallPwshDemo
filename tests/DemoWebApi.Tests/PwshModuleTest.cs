@@ -17,30 +17,33 @@ public class PwshModuleTest
             AddToHistory = false,
             ErrorActionPreference = ActionPreference.Stop,
         };
+
         #region TestScript
-        const string testScript = """
 
-                                  $tempModulePath = $env:TEMP + "\PwshModule$((Get-Date).Ticks)"
-                                  if(-not (Test-Path $tempModulePath)) {
-                                      New-Item -Path $tempModulePath -ItemType Directory -ErrorAction Stop | Out-Null
-                                  }
-                                  else {
-                                      Remove-Item -Path $tempModulePath -Recurse -Force -ErrorAction Stop | Out-Null
-                                      New-Item -Path $tempModulePath -ItemType Directory -ErrorAction Stop | Out-Null
-                                  }
-                                  Save-Module -Name Pester -Path $tempModulePath -ErrorAction Stop
-                                  Import-Module $tempModulePath\Pester -Force -ErrorAction Stop
+        const string testScript =
+            """
+            $tempModulePath = $env:TEMP + "\PwshModule$((Get-Date).Ticks)"
+            if(-not (Test-Path $tempModulePath)) {
+                New-Item -Path $tempModulePath -ItemType Directory -ErrorAction Stop | Out-Null
+            }
+            else {
+                Remove-Item -Path $tempModulePath -Recurse -Force -ErrorAction Stop | Out-Null
+                New-Item -Path $tempModulePath -ItemType Directory -ErrorAction Stop | Out-Null
+            }
+            Save-Module -Name Pester -Path $tempModulePath -ErrorAction Stop
+            Import-Module $tempModulePath\Pester -Force -ErrorAction Stop
 
-                                  $currentDir = [System.IO.Directory]::GetCurrentDirectory()
-                                  $TestScriptPath = "$currentDir\..\..\..\PwshScripts\DuplicateFilesFinder.Tests.ps1"
-                                  if(-not (Test-Path $TestScriptPath)) {
-                                      throw "Test script not found at $TestScriptPath"
-                                  }
-                                  $result = Invoke-Pester -Path $TestScriptPath -PassThru
-                                  return $result
+            $currentDir = [System.IO.Directory]::GetCurrentDirectory()
+            $TestScriptPath = "$currentDir\..\..\..\PwshScripts\DuplicateFilesFinder.Tests.ps1"
+            if(-not (Test-Path $TestScriptPath)) {
+                throw "Test script not found at $TestScriptPath"
+            }
+            $result = Invoke-Pester -Path $TestScriptPath -PassThru
+            return $result
+            """;
 
-                                  """;
         #endregion
+
         ps.AddScript(testScript);
 
         // Act
@@ -56,8 +59,9 @@ public class PwshModuleTest
         Assert.NotNull(totalCount);
         Assert.NotNull(passedCount);
         Assert.NotNull(failedCount);
-        
+
         Assert.Equal("Passed", testResult);
+        Assert.True(passedCount > 0);
         Assert.Equal(totalCount, passedCount);
         Assert.Equal(0, failedCount);
     }
